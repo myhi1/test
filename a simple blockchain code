@@ -1,0 +1,79 @@
+برای نوشتن یک کد ساده برای ایجاد یک توکن رمزنگاری با استفاده از **Solidity** (که روی بلاک‌چین اتریوم اجرا می‌شود)، می‌توانیم از استاندارد **ERC20** استفاده کنیم. ERC20 استانداردی است که برای توکن‌ها در بلاک‌چین اتریوم طراحی شده است. این استاندارد شامل توابع و ویژگی‌هایی است که تمامی توکن‌ها باید از آن پیروی کنند تا بتوانند با هم تعامل داشته باشند.
+
+در زیر یک نمونه کد برای ایجاد توکن ERC20 با استفاده از Solidity آورده شده است:
+
+### کد Solidity برای ایجاد یک توکن ERC20:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract MyToken {
+    string public name = "MyToken"; // نام توکن
+    string public symbol = "MTK";  // نماد توکن
+    uint8 public decimals = 18;    // تعداد ارقام اعشار
+    uint256 public totalSupply;    // مجموع عرضه توکن‌ها
+    mapping(address => uint256) public balanceOf;  // نگه‌داری موجودی کاربران
+    mapping(address => mapping(address => uint256)) public allowance;  // اجازه تراکنش
+
+    // رویدادهای مربوط به توکن
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    constructor(uint256 _initialSupply) {
+        totalSupply = _initialSupply * 10 ** uint256(decimals); // عرضه اولیه
+        balanceOf[msg.sender] = totalSupply; // تخصیص اولیه به صاحب قرارداد
+    }
+
+    // تابع انتقال توکن
+    function transfer(address _to, uint256 _value) public returns (bool success) {
+        require(_to != address(0), "Invalid address");
+        require(balanceOf[msg.sender] >= _value, "Insufficient balance");
+
+        balanceOf[msg.sender] -= _value;
+        balanceOf[_to] += _value;
+        emit Transfer(msg.sender, _to, _value);
+        return true;
+    }
+
+    // تابع تایید انتقال
+    function approve(address _spender, uint256 _value) public returns (bool success) {
+        allowance[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+        return true;
+    }
+
+    // تابع انتقال با تایید
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
+        require(_from != address(0), "Invalid address");
+        require(_to != address(0), "Invalid address");
+        require(balanceOf[_from] >= _value, "Insufficient balance");
+        require(allowance[_from][msg.sender] >= _value, "Allowance exceeded");
+
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        allowance[_from][msg.sender] -= _value;
+        emit Transfer(_from, _to, _value);
+        return true;
+    }
+}
+```
+
+### توضیحات:
+
+- **name**: نام توکن شما.
+- **symbol**: نماد توکن شما (مثل "BTC" برای بیت‌کوین یا "ETH" برای اتریوم).
+- **decimals**: تعداد ارقام اعشاری که برای توکن شما مجاز است.
+- **totalSupply**: مجموع توکن‌های در گردش (که در زمان ایجاد قرارداد مشخص می‌شود).
+- **balanceOf**: یک نقشه برای ذخیره موجودی توکن‌ها برای هر آدرس.
+- **allowance**: اجازه‌نامه برای افرادی که می‌توانند به نمایندگی از صاحب توکن، توکن‌ها را انتقال دهند.
+
+### نحوه استفاده:
+1. وقتی این قرارداد را روی بلاک‌چین اتریوم مستقر کنید (با استفاده از ابزارهایی مانند **Remix** یا **Truffle**)، این توکن قابلیت‌های اصلی یک توکن ERC20 را دارد:
+   - انتقال توکن‌ها
+   - تایید اجازه برای انتقال توسط شخص ثالث
+   - کنترل موجودی
+
+2. شما می‌توانید این کد را با استفاده از مقادیر دلخواه به دلخواه خود تنظیم کنید (مثلاً عرضه اولیه یا نام توکن).
+
+اگر نیاز به اطلاعات بیشتر در مورد نحوه استقرار این قرارداد یا اصلاح آن داشته باشید، خوشحال می‌شوم کمک کنم!
